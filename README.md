@@ -1,11 +1,13 @@
 # 静默提案 · 梁神模式变体（liangshen-quiet）
 
-梁神模式（@linxin666/dsh-liangshen）的复制变体，只改两件事：
+梁神模式（@linxin666/dsh-liangshen）的复制变体，在上游之上只改四件事：
 
 1. **不问选择题**：不再挂载 `tool-ask-user` 工具，系统提示里所有"必须调用 ask_user_question"的规则改为"以文字收尾，给结论+方案对比+编号选项+推荐"。
 2. **设计阶段默认**：用户消息没有明确要求执行（改文件/装/构建/提交/派发实现）时，只允许只读勘察，产出提议；不动文件、不跑有副作用的命令、不派实现子 agent。
+3. **预设作者技能**：`skill-filesystem` 加 `customSkillDirs`，组合时动态算出 `@deepseek-ai/dsh-agent-preset/skills`（`!!js` + `createRequire(baseUrl)`，与创造模式同一表达式），多出 agent-experience、cordis-composition-reference、cordis-plugin-development（含 decoration / MCP 模板）、editing-cordis-compositions 四个技能。
+4. **组合自省工具**：挂 `tool-cordis`（`cordis_inspect_list` / `cordis_inspect_query`，只读），用于查 Loader entry 树、单个 entry 的 config JSON Schema、Host/Client 的 service 与 event 目录、当前工具 schema；宿主侧 provider（`@deepseek-ai/dsh-tool-cordis/host`）由部署的 host 组合提供。
 
-其余（persona 纪律、dispatcher 规则骨架 R0/R-G/R1-R8、工具清单、compaction、delegation、subagent 路由、todo、goal…）与梁神模式逐字一致。
+除上述四项外，其余（persona 纪律、dispatcher 规则骨架 R0/R-G/R1-R8、工具清单、compaction、delegation、subagent 路由、todo、goal…）与梁神模式逐字一致。
 
 ## 目录
 
@@ -25,6 +27,7 @@ node build/install.mjs              # → <profile>/presets-local + cordis.patch
 ## 关键实现约束
 
 - 通用 `@deepseek-ai/dsh-agent-preset` **不会**重写子行的相对 `name`；梁神是在自己的 `lib/index.js:340` 用 `pathToFileURL` 处理的。因此 `install.mjs` 把 `name: ./x.mjs` 改写成绝对 `file:///…` 地址。
+- `customSkillDirs` 的 `!!js` 在**组合时**求值，`baseUrl` 是预设声明行所在目录（装好后即 profile 目录）。已实测 profile 目录与预设文件 URL 两种锚点都能解析到 `@deepseek-ai/dsh-agent-preset`，换版本或 store hash 不用改本仓库。
 - 在 profile 的 `cordis.patch.yml` 里新增行必须写成 `- insert:` 块；裸 `- id: x` 是"覆盖已存在行"，会报 `entry "x" not found`。
 
 ## 启用

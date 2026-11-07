@@ -305,9 +305,28 @@
 # The `skill-catalog` pre-step message stays current like any other injection.
 - id: skill-filesystem
   name: '@deepseek-ai/dsh-skill-filesystem'
+  config:
+    customSkillDirs:
+      - !!js process.getBuiltinModule('node:path').join(process.getBuiltinModule('node:path').dirname(process.getBuiltinModule('node:module').createRequire(baseUrl).resolve('@deepseek-ai/dsh-agent-preset/package.json')), 'skills')
+
+# `customSkillDirs` adds the preset-authoring skills shipped with
+# `@deepseek-ai/dsh-agent-preset`—agent-experience,
+# cordis-composition-reference, cordis-plugin-development (with its
+# decoration and MCP templates) and editing-cordis-compositions—on top of
+# the local roots this row already discovers. The directory is computed at
+# compose time from `baseUrl`, so a version bump or a store-hash change in
+# the install path needs no edit here.
 
 - id: tool-skill
   name: '@deepseek-ai/dsh-tool-skill'
+
+# Read-only introspection of the running composition: the Loader entry tree
+# with each entry's config state and packageDir, one entry's config JSON
+# schema, the Host/Client service and event catalogs, and the current tool
+# schemas. The provider that answers it (`@deepseek-ai/dsh-tool-cordis/host`)
+# sits in the deployment's host composition; this row is the model-facing half.
+- id: tool-cordis
+  name: '@deepseek-ai/dsh-tool-cordis'
 
 # ── goals ───────────────────────────────────────────────────────────────────
 
