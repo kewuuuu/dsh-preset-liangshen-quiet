@@ -85,6 +85,11 @@ const PAIRS = [
     "file": "agent.cordis.yml",
     "find": "- id: skill-filesystem\n  name: '@deepseek-ai/dsh-skill-filesystem'\n\n- id: tool-skill\n  name: '@deepseek-ai/dsh-tool-skill'",
     "replace": "- id: skill-filesystem\n  name: '@deepseek-ai/dsh-skill-filesystem'\n  config:\n    customSkillDirs:\n      - !!js process.getBuiltinModule('node:path').join(process.getBuiltinModule('node:path').dirname(process.getBuiltinModule('node:module').createRequire(baseUrl).resolve('@deepseek-ai/dsh-agent-preset/package.json')), 'skills')\n\n# `customSkillDirs` adds the preset-authoring skills shipped with\n# `@deepseek-ai/dsh-agent-preset`—agent-experience,\n# cordis-composition-reference, cordis-plugin-development (with its\n# decoration and MCP templates) and editing-cordis-compositions—on top of\n# the local roots this row already discovers. The directory is computed at\n# compose time from `baseUrl`, so a version bump or a store-hash change in\n# the install path needs no edit here.\n\n- id: tool-skill\n  name: '@deepseek-ai/dsh-tool-skill'\n\n# Read-only introspection of the running composition: the Loader entry tree\n# with each entry's config state and packageDir, one entry's config JSON\n# schema, the Host/Client service and event catalogs, and the current tool\n# schemas. The provider that answers it (`@deepseek-ai/dsh-tool-cordis/host`)\n# sits in the deployment's host composition; this row is the model-facing half.\n- id: tool-cordis\n  name: '@deepseek-ai/dsh-tool-cordis'"
+  },
+  {
+    "file": "agent.cordis.yml",
+    "find": "- id: tool-cordis\n  name: '@deepseek-ai/dsh-tool-cordis'",
+    "replace": "- id: tool-cordis\n  name: '@deepseek-ai/dsh-tool-cordis'\n\n# Plugin management from the model side: the same operations as the Web UI's\n# Plugins page—list bundles, toggle \`disabled\`, install (including\n# \`link:<abs dir>\` for a local checkout), inspect for an update, uninstall.\n# A toggle writes only \`disabled\` in this profile's \`cordis.patch.yml\`, never\n# an agent-preset row; this row itself is inert outside the profile run, which\n# is where that patch and package.json live.\n- id: tool-plugin-manager\n  name: '@deepseek-ai/dsh-plugin-manager/tools'\n  disabled: !!js \"!ctx.get('profileContext')\""
   }
 ]
 

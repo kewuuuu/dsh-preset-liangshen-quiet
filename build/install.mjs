@@ -2,7 +2,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 
-const PROFILE = process.env.DSH_PROFILE || "C:\\Users\\kewu0\\AppData\\Roaming\\dsh-launcher\\dsh-packs\\pack-test\\profiles\\pack-test"
+const PROFILE = process.env.DSH_PROFILE || "D:\\engine\\DSH\\launcher-data\\dsh-packs\\pack-test\\profiles\\pack-test"
 const DESC = "梁神模式的静默变体——不弹选择题，每轮以结论、方案对比、编号选项和推荐收尾；未明确要求执行时只做设计阶段提议，不动文件、不跑变更命令、不派实现子 agent。"
 const here = path.dirname(fileURLToPath(import.meta.url))
 const SRC = path.resolve(here, '..', 'presets', 'liangshen-quiet')

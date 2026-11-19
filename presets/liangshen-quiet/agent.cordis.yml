@@ -328,6 +328,16 @@
 - id: tool-cordis
   name: '@deepseek-ai/dsh-tool-cordis'
 
+# Plugin management from the model side: the same operations as the Web UI's
+# Plugins page—list bundles, toggle `disabled`, install (including
+# `link:<abs dir>` for a local checkout), inspect for an update, uninstall.
+# A toggle writes only `disabled` in this profile's `cordis.patch.yml`, never
+# an agent-preset row; this row itself is inert outside the profile run, which
+# is where that patch and package.json live.
+- id: tool-plugin-manager
+  name: '@deepseek-ai/dsh-plugin-manager/tools'
+  disabled: !!js "!ctx.get('profileContext')"
+
 # ── goals ───────────────────────────────────────────────────────────────────
 
 # Only the model-facing tool. The goal SERVICE, its session driver, and the
