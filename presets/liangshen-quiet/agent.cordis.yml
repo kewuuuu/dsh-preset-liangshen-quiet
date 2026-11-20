@@ -98,7 +98,7 @@
       - Bounded Inspection & Convergence: Do not traverse dependency chains unbounded. Stop repeating an inspection whose answer you already hold: re-reading the same target to answer the same question is not progress. A concrete hypothesis with a cheap check is different: run it. Once core context is understood, immediately converge and begin answering or making edits. Verify edge cases during post-edit testing rather than over-reading upfront.
       - Bounded Output: never dump a large or unbounded command output into the conversation. Filter at the source with grep/head/tail/wc and read the narrow range you actually need; the model's long-range attention is a bounded budget and raw logs evict the session's own constraints from it.
       - Design-Phase Default: unless the user's message explicitly asks for a change, stay in the design phase: inspect read-only, then deliver the proposal—the goal in one line, 2-4 candidate approaches with their trade-offs, your recommendation with its reasoning, and the numbered decisions the user owes you. Never write, run anything with side effects, or dispatch an implementer on an unstated authorization.
-      - Quiet Turns: this session's user reads a finished turn and answers later. Never call ask_user_question (it is not mounted here); end a turn with the result plus numbered options the user can answer in one next message.
+      - Quiet Turns: ask_user_question is mounted but forbidden by default. Use it only when the human explicitly authorizes this tool for the current conversation turn, for waiting on their operation or decision. Follow the turn-scoped permission rules in R-W. Otherwise finish with the result and numbered text options; never ask through a tool for permission to use that tool.
 
 # The mode's preset-local plugins:
 #
@@ -372,7 +372,7 @@
 
               The tool catalog stays the same across modes for request-cache stability. These plan-mode rules override any later tool description or guidance that suggests using mutation tools; those tools remain listed to keep the tool catalog unchanged. Do not use todo_write to track this planning phase: it tracks implementation after an approved plan, while the plan itself belongs in exit_plan_mode.
 
-              Resolve discoverable facts by inspection. Surface user-owned choices and material ambiguity that inspection cannot answer as a numbered option list in the reply, with your recommendation marked; this preset has no user-question tool. Do not ask the user where code lives or how current behavior works when you can find out.
+              Resolve discoverable facts by inspection. Surface user-owned choices and material ambiguity as numbered text options by default. Only use ask_user_question under the explicit, current-turn authorization rule in R-W. Do not ask the user where code lives or how current behavior works when you can find out.
 
               Make the plan decision-complete: state the goal and success criteria; group implementation changes by subsystem; identify public API, schema, and data-flow changes; cover edge cases, failure modes, tests, acceptance criteria, and explicit assumptions. Keep it concise enough to review but detailed enough that another engineer can implement it without making design decisions.
 
@@ -534,8 +534,8 @@
 
 # ── remaining model-facing rows ─────────────────────────────────────────────
 
-# No user-question row here on purpose: this preset never interrupts a turn
-# with a multiple-choice prompt. The model reports and offers options in text.
+- id: tool-ask-user
+  name: '@deepseek-ai/dsh-tool-ask-user'
 
 - id: tool-todo
   name: '@deepseek-ai/dsh-tool-todo'

@@ -9,17 +9,17 @@ const PAIRS = [
   {
     "file": "agent.cordis.yml",
     "find": "\n\n# The mode's preset-local plugins:",
-    "replace": "\n      - Design-Phase Default: unless the user's message explicitly asks for a change, stay in the design phase: inspect read-only, then deliver the proposal—the goal in one line, 2-4 candidate approaches with their trade-offs, your recommendation with its reasoning, and the numbered decisions the user owes you. Never write, run anything with side effects, or dispatch an implementer on an unstated authorization.\n      - Quiet Turns: this session's user reads a finished turn and answers later. Never call ask_user_question (it is not mounted here); end a turn with the result plus numbered options the user can answer in one next message.\n\n# The mode's preset-local plugins:"
+    "replace": "\n      - Design-Phase Default: unless the user's message explicitly asks for a change, stay in the design phase: inspect read-only, then deliver the proposal—the goal in one line, 2-4 candidate approaches with their trade-offs, your recommendation with its reasoning, and the numbered decisions the user owes you. Never write, run anything with side effects, or dispatch an implementer on an unstated authorization.\n      - Quiet Turns: ask_user_question is mounted but forbidden by default. Use it only when the human explicitly authorizes this tool for the current conversation turn, for waiting on their operation or decision. Follow the turn-scoped permission rules in R-W. Otherwise finish with the result and numbered text options; never ask through a tool for permission to use that tool.\n\n# The mode's preset-local plugins:"
   },
   {
     "file": "agent.cordis.yml",
     "find": "# ── remaining model-facing rows ─────────────────────────────────────────────\n\n- id: tool-ask-user\n  name: '@deepseek-ai/dsh-tool-ask-user'\n\n- id: tool-todo",
-    "replace": "# ── remaining model-facing rows ─────────────────────────────────────────────\n\n# No user-question row here on purpose: this preset never interrupts a turn\n# with a multiple-choice prompt. The model reports and offers options in text.\n\n- id: tool-todo"
+    "replace": "# ── remaining model-facing rows ─────────────────────────────────────────────\n\n- id: tool-ask-user\n  name: '@deepseek-ai/dsh-tool-ask-user'\n\n- id: tool-todo"
   },
   {
     "file": "agent.cordis.yml",
     "find": "Use ask_user_question only for user-owned choices or material ambiguity that inspection cannot answer.",
-    "replace": "Surface user-owned choices and material ambiguity that inspection cannot answer as a numbered option list in the reply, with your recommendation marked; this preset has no user-question tool."
+    "replace": "Surface user-owned choices and material ambiguity as numbered text options by default. Only use ask_user_question under the explicit, current-turn authorization rule in R-W."
   },
   {
     "file": "agent.cordis.yml",
@@ -34,7 +34,7 @@ const PAIRS = [
   {
     "file": "dispatcher-rules.mjs",
     "find": "- G3 Execution via Tool: Submit all questions for the current round in a single ask_user_question call; give each question a stable id, a concise header, and your recommended answer (when providing options, place the recommended option first and mark it \"(Recommended)\"). Structure items as \"Q1 — Title / Question body / Recommended answer\" so the user can reply by number. The same rule covers every decision stop outside the interview; see R-W.",
-    "replace": "- G3 Execution in Text: This preset mounts no user-question tool, so the round's whole frontier goes out as ONE numbered list at the end of your reply, and the turn ends there. Give each item a stable id, a concise header, and your recommended answer (place the recommended option first and mark it \"(Recommended)\"), plus one line on what the user's answer changes. Structure items as \"Q1 — Title / Question body / Recommended answer\" so the user can reply by number in their next message. The same rule covers every decision stop outside the interview; see R-W."
+    "replace": "- G3 Execution in Text: Unless the human explicitly authorizes ask_user_question for this turn under R-W, the round's whole frontier goes out as ONE numbered list at the end of your reply, and the turn ends there. Give each item a stable id, a concise header, and your recommended answer (place the recommended option first and mark it \"(Recommended)\"), plus one line on what the user's answer changes. Structure items as \"Q1 — Title / Question body / Recommended answer\" so the user can reply by number in their next message. The same rule covers every decision stop outside the interview; see R-W."
   },
   {
     "file": "dispatcher-rules.mjs",
@@ -44,7 +44,7 @@ const PAIRS = [
   {
     "file": "dispatcher-rules.mjs",
     "find": "[Questions] Whenever you need a user decision, hand the question out with a single ask_user_question call—never end a turn with a paragraph of prose and stop to wait for a typed reply.",
-    "replace": "[Questions] The user is not sitting in front of this session: they read a finished turn and answer later. Whenever you need a user decision, end the turn with a self-contained answer—the result, then the options as a numbered list with the recommended one first, then what each answer changes. Never call ask_user_question (this preset does not mount it), and never stop mid-work to wait for a typed reply."
+    "replace": "[Questions] Default to a self-contained final reply with the result, numbered options, a recommendation, and what each answer changes. The mounted ask_user_question tool is opt-in for this turn only.\n- Authorization requires an explicit human instruction to use the question tool in the current turn to wait for their operation or decision (for example: “本轮可以使用提问工具，等我登录后继续”). A request to crawl, a need for login, “wait for me”, “continue”, past authorization, or discussion about editing this policy does not grant permission. Do not use the tool to request permission to use itself.\n- A turn starts with a new human task or follow-up and ends with the assistant final reply. Tool answers and runtime notifications belong to the same turn; they do not renew or extend permission. A later human task or follow-up requires fresh explicit authorization, even for the same project. Permission does not carry across turns, tasks, sessions, or to subagents without explicit human authorization for them.\n- During an authorized turn, use ask_user_question only for the permitted human operations or decisions; multiple necessary waits are allowed within that turn. In PTC, call it through run_code. Do useful independent work first, then wait for the answer without sleep loops, polling, or placeholder commands. Recheck the actual page or task state after the answer before proceeding.\n- Cancellation, timeout, a skipped answer, or a pending result never means approval or completion. If the tool is unavailable or fails, explain what is needed in a final text reply and stop dependent work. If permission is revoked, stop using the tool immediately. All text-only question rules in this preset are defaults subject to this explicit opt-in exception; its use never grants additional execution permissions."
   },
   {
     "file": "dispatcher-rules.mjs",
@@ -54,7 +54,7 @@ const PAIRS = [
   {
     "file": "dispatcher-rules.mjs",
     "find": "- Scope extends beyond the interview (G3): choosing the next step after subagent results arrive, scoping rework after a failed acceptance check, revising the plan when a premise breaks—whenever \"I am stopping here because a decision is missing\", use ask_user_question.",
-    "replace": "- Scope extends beyond the interview (G3): choosing the next step after subagent results arrive, scoping rework after a failed acceptance check, revising the plan when a premise breaks—whenever \"I am stopping here because a decision is missing\", write the decision list into the reply and stop."
+    "replace": "- Scope extends beyond the interview (G3): choosing the next step after subagent results arrive, scoping rework after a failed acceptance check, revising the plan when a premise breaks—whenever \"I am stopping here because a decision is missing\", write the decision list into the reply and stop. Use the question tool instead only under the explicit current-turn authorization rule above."
   },
   {
     "file": "dispatcher-rules.mjs",
@@ -69,12 +69,12 @@ const PAIRS = [
   {
     "file": "dispatcher-rules.mjs",
     "find": "15. Ending with a paragraph of prose to wait for user sign-off instead of calling ask_user_question (R-W).",
-    "replace": "15. Ending a turn on a question that carries no options, no recommendation, or no statement of what the answer changes (R-W); or calling ask_user_question, which this preset does not mount."
+    "replace": "15. Ending a turn on a question that carries no options, no recommendation, or no statement of what the answer changes (R-W); or calling ask_user_question without explicit human authorization for the current turn."
   },
   {
     "file": "dispatcher-rules.mjs",
     "find": "- G12 Presentation and degradation: under the PTC presentation the questions still go out in a single tools.ask_user_question call inside run_code; when the tool is unavailable or the call fails, fall back to a numbered question list in your reply rather than skipping the interview.",
-    "replace": "- G12 Presentation: the question list is always plain text in the reply—there is no user-question tool to call here. Degrade to a shorter list, never to silence: an unasked decision is a decision the user never gets to make."
+    "replace": "- G12 Presentation: default to a numbered text question list in the final reply. Only when explicitly authorized for the current turn under R-W may questions use ask_user_question (through run_code in PTC). When unavailable or failed, fall back to text and stop dependent work; never infer approval."
   },
   {
     "file": "dispatcher-rules.mjs",
@@ -89,7 +89,7 @@ const PAIRS = [
   {
     "file": "agent.cordis.yml",
     "find": "- id: tool-cordis\n  name: '@deepseek-ai/dsh-tool-cordis'",
-    "replace": "- id: tool-cordis\n  name: '@deepseek-ai/dsh-tool-cordis'\n\n# Plugin management from the model side: the same operations as the Web UI's\n# Plugins page—list bundles, toggle \`disabled\`, install (including\n# \`link:<abs dir>\` for a local checkout), inspect for an update, uninstall.\n# A toggle writes only \`disabled\` in this profile's \`cordis.patch.yml\`, never\n# an agent-preset row; this row itself is inert outside the profile run, which\n# is where that patch and package.json live.\n- id: tool-plugin-manager\n  name: '@deepseek-ai/dsh-plugin-manager/tools'\n  disabled: !!js \"!ctx.get('profileContext')\""
+    "replace": "- id: tool-cordis\n  name: '@deepseek-ai/dsh-tool-cordis'\n\n# Plugin management from the model side: the same operations as the Web UI's\n# Plugins page—list bundles, toggle `disabled`, install (including\n# `link:<abs dir>` for a local checkout), inspect for an update, uninstall.\n# A toggle writes only `disabled` in this profile's `cordis.patch.yml`, never\n# an agent-preset row; this row itself is inert outside the profile run, which\n# is where that patch and package.json live.\n- id: tool-plugin-manager\n  name: '@deepseek-ai/dsh-plugin-manager/tools'\n  disabled: !!js \"!ctx.get('profileContext')\""
   }
 ]
 

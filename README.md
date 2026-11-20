@@ -2,12 +2,20 @@
 
 梁神模式（@linxin666/dsh-liangshen）的复制变体，在上游之上只改四件事：
 
-1. **不问选择题**：不再挂载 `tool-ask-user` 工具，系统提示里所有"必须调用 ask_user_question"的规则改为"以文字收尾，给结论+方案对比+编号选项+推荐"。
+1. **默认不使用提问工具**：挂载 `tool-ask-user`，但默认禁止调用。只有用户明确授权当轮使用提问工具等待其操作或决策时，才允许调用；未授权时仍以文字收尾，给结论、方案对比、编号选项和推荐。
 2. **设计阶段默认**：用户消息没有明确要求执行（改文件/装/构建/提交/派发实现）时，只允许只读勘察，产出提议；不动文件、不跑有副作用的命令、不派实现子 agent。
 3. **预设作者技能**：`skill-filesystem` 加 `customSkillDirs`，组合时动态算出 `@deepseek-ai/dsh-agent-preset/skills`（`!!js` + `createRequire(baseUrl)`，与创造模式同一表达式），多出 agent-experience、cordis-composition-reference、cordis-plugin-development（含 decoration / MCP 模板）、editing-cordis-compositions 四个技能。
 4. **组合自省工具**：挂 `tool-cordis`（`cordis_inspect_list` / `cordis_inspect_query`，只读），用于查 Loader entry 树、单个 entry 的 config JSON Schema、Host/Client 的 service 与 event 目录、当前工具 schema；宿主侧 provider（`@deepseek-ai/dsh-tool-cordis/host`）由部署的 host 组合提供。
 
 除上述四项外，其余（persona 纪律、dispatcher 规则骨架 R0/R-G/R1-R8、工具清单、compaction、delegation、subagent 路由、todo、goal…）与梁神模式逐字一致。
+
+## 提问工具的当轮授权
+
+- “本轮可以使用提问工具，等我登录后继续”是明确授权；本轮需要的操作确认或决策可以通过工具等待，回答后先核实实际状态再继续。
+- “继续”“等我一下”、需要登录、提出爬虫任务，或讨论修改这条规则，都不算授权。模型也不能调用提问工具来询问是否允许调用它。
+- 授权只对当前轮有效；工具答复属于同一轮。助手给出最终回复后，下一轮、下一任务或新会话默认恢复禁用，子 agent 也不自动继承。
+- 取消、超时、跳过或 pending 不代表同意或操作完成。工具不可用时，改为文字说明并停止依赖该答案的工作。
+- 这是预设提示词约束，不是宿主侧的运行时拦截。当前已启动会话保留旧工具与提示词；更新安装后应新建会话验证。预设简介中的“不弹选择题”指默认行为。
 
 ## 目录
 
