@@ -13,8 +13,9 @@
 ## 当前进度
 
 - 已有预设、生成与安装脚本；README 已补充克隆与跨电脑安装说明。
-- 已检查现有三个提交中的常见凭据模式，未命中；远端创建与推送待核验。
+- 已检查原有三个提交中的常见凭据模式，未命中。
+- 已创建公开远端 https://github.com/kewuuuu/dsh-preset-liangshen-quiet 并成功推送 master，配置 origin/master 跟踪。
 
 ## 下一步
 
-创建公开远端并推送，核对远端 master 与本地提交一致。
+可直接分享 GitHub 链接；后续修改提交后使用 git push 同步。
