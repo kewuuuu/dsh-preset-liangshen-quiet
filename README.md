@@ -15,6 +15,24 @@
 - `build/install.mjs` — 把 `presets/liangshen-quiet/` 装进 profile 的 `presets-local/`，并把声明行写进 profile 的 `cordis.patch.yml`（区域标记 `# region:begin liangshen-quiet` … `# region:end liangshen-quiet`，可重复执行）
 - `presets/liangshen-quiet/` — 生成的预设（上游更新后可重新生成，再 `git diff` 审阅）
 
+## 获取与安装
+
+需要已安装并配置好的 DSH、Node.js 和 Git；本仓库提供预设，不包含 DSH 运行时及其插件依赖。
+
+```sh
+git clone https://github.com/kewuuuu/dsh-preset-liangshen-quiet.git
+cd dsh-preset-liangshen-quiet
+```
+
+安装前请把 `DSH_PROFILE` 设置为你自己的 DSH profile 绝对路径，该目录应已有 `cordis.patch.yml`。安装脚本的默认路径是作者本机路径，不适用于其他电脑。以 PowerShell 为例：
+
+```powershell
+$env:DSH_PROFILE = "你的 DSH profile 绝对路径"
+node build/install.mjs
+```
+
+直接使用仓库中的预设即可，无需先重新生成。安装后按下文「启用」操作；上游更新时才需要重新生成。
+
 ## 重新生成 / 安装
 
 ```
